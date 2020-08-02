@@ -157,20 +157,14 @@ static inline int goap_search(
     return size;
 }
 
-static inline int goap_reconstruct_plan(
-    context_t* ctx,
-    anode_t* goal,
-    const char** plan,
-    state_t* state,
-    int* plan_size
-){
+static inline void goap_reconstruct(context_t* ctx,
+    anode_t* goal,const char** plan,int* plan_size){
     anode_t* node=goal;
     int idx=*plan_size-1;
     int steps=0;
     while(node && node->act_name){
         if(idx>=0){
             plan[idx]=node->act_name;
-            state[idx]=node->state;
             int i=goap_idx_closed(node->pre_state);
             node= i<0? 0:CLOSED+i;
         }
@@ -181,19 +175,12 @@ static inline int goap_reconstruct_plan(
     if(idx>0){
         for(int i=0;i<steps;++i){
             plan[i]=plan[i+idx];
-            state[i]=state[i+idx];
         }
     }
     *plan_size=steps;
 }
-int goap_plan(
-    context_t* ctx,
-    state_t start,
-    state_t goal,
-    const char** plan,
-    state_t* state,
-    int* plan_size
-){
+int goap_plan(context_t* ctx,
+    state_t start,state_t goal,const char** plan,int* plan_size){
     anode_t n0;{
         n0.state=start;
         n0.pre_state=start;
@@ -220,7 +207,7 @@ int goap_plan(
             OPENED[lowest_idx]=OPENED[LEN_OPENED-1];
         LEN_OPENED--;
         if(goap_match(&goal,&node.state)){
-            goap_reconstruct_plan(ctx,&node,plan,state,plan_size);
+            goap_reconstruct(ctx,&node,plan,plan_size);
             return node.f;
         }
         
@@ -233,7 +220,7 @@ int goap_plan(
         const int size=goap_search(
                 ctx,node.state,to,act_names,act_costs,MAX_ACTIONS);
         for(int i=0;i<size;++i){
-            anode_t near;
+            anode_t next;
             const int cost=node.g+act_costs[i];
             int idx_o=goap_idx_opened(to[i]);
             int idx_c=goap_idx_closed(to[i]);
@@ -248,13 +235,13 @@ int goap_plan(
                 idx_c=-1;
             }
             if(idx_c<0 && idx_o<0){
-                near.state=to[i];
-                near.g=cost;
-                near.h=goap_h_of(near.state,goal);
-                near.f=near.g+near.h;
-                near.act_name=act_names[i];
-                near.pre_state=node.state;
-                OPENED[LEN_OPENED++]=near;
+                next.state=to[i];
+                next.g=cost;
+                next.h=goap_h_of(next.state,goal);
+                next.f=next.g+next.h;
+                next.act_name=act_names[i];
+                next.pre_state=node.state;
+                OPENED[LEN_OPENED++]=next;
             }
             if(LEN_OPENED>MAX_OPEN) return -1;
         }

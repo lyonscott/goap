@@ -1,0 +1,16 @@
+eat:
+    condition:
+        is_hungry=yes
+        has_food=yes
+    effect:
+        is_hungry=no
+        has_food=no
+    cost=20
+attack:
+    condition:
+        can_attack=yes
+        has_weapon=yes
+    effect:
+        kill_enmey=yes
+        can_attack=no
+    cost=10

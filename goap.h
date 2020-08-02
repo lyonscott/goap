@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
+#include <stdio.h>
 #define MAX_ATOMS 64
 #define MAX_ACTIONS 64
 
@@ -26,36 +26,10 @@ typedef struct{
 
 extern void goap_ctx_clear(context_t* ctx);
 extern void goap_state_clear(state_t* stat);
-
 extern bool goap_state_set(context_t* ctx,state_t* stat,const char* atom,bool value);
 extern bool goap_set_pre(context_t* ctx,const char* act,const char* atom,bool value);
 extern bool goap_set_pst(context_t* ctx,const char* act,const char* atom,bool value);
 extern bool goap_set_cost(context_t* ctx,const char* act,int cost);
-
-extern int goap_plan(
-    context_t* ctx,
-    state_t start,
-    state_t goal,
-    const char** plan,
-    state_t* state,
-    int* plan_size
-);
-
-#ifdef LUA_BINDING
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-static int lgoap_ctx_clear(lua_State* L);
-static int lgoap_state_clear(lua_State* L);
-static int lgoap_state_set(lua_State* L);
-static int lgoap_action_set(lua_State* L);
-static int lgoap_set_pre(lua_State* L);
-static int lgoap_set_pst(lua_State* L);
-static int lgoap_set_cost(lua_State* L);
-static int lgoap_plan(lua_State* L);
-LUAMOD_API int luaopen_goap(lua_State* L);
-
-#endif
+extern int goap_plan(context_t* ctx,state_t start,state_t goal,const char** plan,int* plan_size);
 
 #endif
